@@ -1,0 +1,32 @@
+version: "3.9"
+services:
+  app:
+    restart: always
+    build:
+      context: .
+      target: dependencies
+    ports:
+      - 3333:3333
+    env_file:
+      - .env
+    volumes:
+      - ./:/app
+      - /app/node_modules
+
+    command: npm run dev
+
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=Parag@901
+      - POSTGRES_USER=postgres
+      - POSTGRES_DATABASE=postgres
+      - POSTGRES_HOST=localhost
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

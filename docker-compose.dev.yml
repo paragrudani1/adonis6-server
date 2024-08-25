@@ -1,0 +1,54 @@
+version: "3.9"
+services:
+  app:
+    restart: always
+    build:
+      context: .
+      target: dependencies
+    ports:
+      - ${PORT}:${PORT}
+      - 9229:9229
+      - 8080:8080
+    env_file:
+      - .env
+    environment:
+      - PG_HOST=postgres
+      - REDIS_HOST=redis
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    command: dumb-init node ace serve --hmr
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app
+          ignore:
+            - node_modules/
+            - .git/
+            - .vscode/ # Exclure les fichiers spécifiques à Visual Studio Code
+            - .env.example # Exclure les fichiers d'exemple de configuration
+            - .DS_Store # Exclure les fichiers de système macOS
+            - build/ # Exclure les fichiers de build
+            - dist/ # Exclure les fichiers de distribution
+            - logs/ # Exclure les fichiers de logs
+            - tmp/ # Exclure les fichiers temporaires
+        - action: rebuild # Si t'ajoute un package sa rebuild ton app
+          path: package.json
+          target: /app
+
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=Parag@901
+      - POSTGRES_USER=postgres
+      - POSTGRES_DATABASE=postgres
+      - POSTGRES_HOST=localhost
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
